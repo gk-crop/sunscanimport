@@ -626,9 +626,11 @@ createGridPlotLAI <- function(data, griddata) {
 createGridPlot <- function(griddata) {
   if (!is.null(griddata) && nrow(griddata)>0) {
     ggplot2::ggplot(griddata) +
-      ggplot2::geom_raster(ggplot2::aes(y=-Row, x=-Col, fill=as.integer(as.factor(PlotID)))) +
+      ggplot2::geom_raster(ggplot2::aes(y=-Row, x=-Col, fill=Col%%2 + Row %% 2)) +
       ggplot2::geom_text(ggplot2::aes(label=PlotID,y=-Row,x=-Col)) +
-      ggplot2::scale_fill_gradient(low="#33ff33", high="#008800")
+      ggplot2::scale_fill_gradient(low="#aaaaaa", high="#eeeeee") +
+      ggplot2::guides(fill="none") +
+      ggplot2::theme_void()
   }
 }
 

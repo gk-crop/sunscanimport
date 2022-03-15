@@ -1,5 +1,7 @@
 source("global.R")
 source("helpers.R")
+sample_grids <- c("file",basename(list.files(system.file("grids", package="sunscanimport"))))
+names(sample_grids) <- c("[From File]",stripFileExtension(sample_grids[-1]))
 
 ui <- fluidPage(
   titlePanel("Convert Sunscan file"),
@@ -20,9 +22,17 @@ ui <- fluidPage(
                 label ="Choose measure_id file (optional)",
                 accept=".TXT",
       ),
-      fileInput(inputId= "gridfile",
-                        label ="Choose grid file (optional)",
-                        accept=".TXT",
+
+      selectInput(inputId="gridfileinternal",
+                  label="Choose plot arrangement grid (optional)",
+                  choices = sample_grids
+      ),
+      conditionalPanel(
+        condition = "input.gridfileinternal == 'file'",
+        fileInput(inputId= "gridfile",
+                  label ="Load grid from file",
+                  accept=".TXT",
+        )
       ),
 
       downloadButton("download", "Download converted data"),
@@ -95,6 +105,7 @@ server <- function(input, output, session) {
 
   val <- reactiveValues()
   val$gridchanged <- FALSE
+  val$gridfileinternal <- FALSE
   val$grid <- NULL
   val$plotdatachanged <- FALSE
   val$plotdata <- NULL
@@ -157,7 +168,17 @@ server <- function(input, output, session) {
 
   griddata <- reactive({
     if(!val$gridchanged) {
-      val$grid <- getIdFromFile(input$gridfile)
+      file <-
+      if(val$gridfileinternal && input$gridfileinternal!="file")
+      {
+        file <- system.file("grids", input$gridfileinternal,package="sunscanimport")
+        val$grid <- readIdData(file)
+      }
+      else
+      {
+        val$grid <- getIdFromFile(input$gridfile)
+      }
+
     }
     validate(need(!is.null(val$grid), "Please load gridfile or create griddata"))
     val$grid
@@ -176,6 +197,12 @@ server <- function(input, output, session) {
 
   observeEvent(input$gridfile, {
     val$gridchanged <-FALSE
+    val$gridfileinternal <- FALSE
+  })
+
+  observeEvent(input$gridfileinternal, {
+    val$gridchanged <-FALSE
+    val$gridfileinternal <- TRUE
   })
 
   observeEvent(input$plotid_cell_edit, {
