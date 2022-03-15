@@ -7,21 +7,21 @@ ui <- fluidPage(
 
     sidebarPanel(
       fileInput(inputId= "sunscanfile",
-                label ="Chose sunscan file",
+                label ="Choose sunscan file",
                 accept=".TXT",
       ),
 
       uiOutput("dataselector"),
       fileInput(inputId= "plotidfile",
-                label ="Chose plot_id file (optional)",
+                label ="Choose plot_id file (optional)",
                 accept=".TXT",
       ),
       fileInput(inputId= "measureidfile",
-                label ="Chose measure_id file (optional)",
+                label ="Choose measure_id file (optional)",
                 accept=".TXT",
       ),
       fileInput(inputId= "gridfile",
-                        label ="Chose grid file (optional)",
+                        label ="Choose grid file (optional)",
                         accept=".TXT",
       ),
 
