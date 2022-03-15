@@ -1,0 +1,19 @@
+Package: sunscanimport
+Type: Package
+Title: Imports data from sunscan device 
+Version: 0.1.0
+Date: 2022-03-15
+Author: Gunther Krauss <guntherkrauss@uni-bonn.de>
+Maintainer: Gunther Krauss <guntherkrauss@uni-bonn.de>
+Description: Provides functions to import, convert and visualize LAI 
+   measurements from Sunscan device. An interactive shiny app is included.
+License: GPL
+Encoding: UTF-8
+LazyData: true
+Imports:
+    stats, utils, readr, dplyr, ggplot2, digest, shiny, DT
+LazyLoad: yes
+VignetteBuilder: knitr
+Suggests:
+    knitr, rmarkdown
+RoxygenNote: 7.1.2
