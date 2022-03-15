@@ -1,1 +1,2 @@
-#source(paste0(scriptpath,"/sunscan_functions.R"))
+library(sunscanimport)
+library(DT)

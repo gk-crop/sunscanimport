@@ -1,6 +1,5 @@
 source("global.R")
 source("helpers.R")
-library(DT)
 
 ui <- fluidPage(
   titlePanel("Convert Sunscan file"),
