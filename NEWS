@@ -1,3 +1,9 @@
+Version 0.2.0
+* Mark/exclude deleted measurements in plots
+* Changed number of rows in table
+* Enhanced Metadata
+* Download Summary and Meta-Data
+
 Version 0.1.2
 * Choose Grid from internal data or from file
 * Change Grid Coloring

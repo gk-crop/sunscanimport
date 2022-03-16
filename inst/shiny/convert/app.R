@@ -1,7 +1,16 @@
 source("global.R")
 source("helpers.R")
+
 sample_grids <- c("file",basename(list.files(system.file("grids", package="sunscanimport"))))
 names(sample_grids) <- c("[From File]",stripFileExtension(sample_grids[-1]))
+
+tableOptions <- list(
+  lengthMenu = list(c(10,25,100,200,-1),c("10","25","100","200","All")),
+  pageLength=25
+)
+
+tableOptionsEdit <-tableOptions
+tableOptionsEdit$pageLength=200
 
 ui <- fluidPage(
   titlePanel("Convert Sunscan file"),
@@ -35,7 +44,9 @@ ui <- fluidPage(
         )
       ),
 
-      downloadButton("download", "Download converted data"),
+      downloadButton("download", "Download converted data"),br(),
+      downloadButton("downloadsummary", "Summary"),
+      downloadButton("downloadmeta", "Meta-Data"),
       br(), br(),
       h4("Download template files"),
       downloadButton("plotiddownload", "PlotNr↔ID template"),
@@ -144,7 +155,25 @@ server <- function(input, output, session) {
     i<- as.integer(req(input$dataset))
     if(i>0 && i <=length(dl))
     {
-      m<-getSmallHeader(dl[[i]])
+      m<-c(
+        getSmallHeader(dl[[i]])
+      )
+      data.frame(Property=names(m), Value=m)
+    }
+  })
+
+  metafull <- reactive({
+    dl <- datalines()
+    i<- as.integer(req(input$dataset))
+    if(i>0 && i <=length(dl))
+    {
+      m <- c(
+        getSmallHeader(dl[[i]]),
+        OriginalFileName = req(input$sunscanfile$name),
+        OriginalMD5Hash = digest::digest(file=req(input$sunscanfile$datapath),algo="md5"),
+        ConversionDate = as.character(Sys.time()),
+        ConversionTool = paste0("Package sunscanimport - version ",packageVersion("sunscanimport")," - (c) Gunther Krauss")
+      )
       data.frame(Property=names(m), Value=m)
     }
   })
@@ -240,12 +269,12 @@ server <- function(input, output, session) {
 
   output$meta <- renderTable(meta())
   output$measurementcount <- renderTable(countMeasurements(df_id()))
-  output$converted <- renderDataTable(df_id())
-  output$summary <- renderDataTable(createSummary(df_id()))
-  output$measurement <- renderDataTable(createSeriesInfo(df_id()))
-  output$plotid <- renderDataTable((plotdata()), editable=list(target="column", disable=list(columns=1)))
-  output$measureid <- renderDataTable((measuredata()), editable=list(target="column", disable=list(columns=1)))
-  output$grid <- renderDataTable(griddata(), editable=list(target="column"))
+  output$converted <- renderDataTable(df_id(), options=tableOptions)
+  output$summary <- renderDataTable(createSummary(df_id()), options=tableOptions)
+  output$measurement <- renderDataTable(createSeriesInfo(df_id()), options=tableOptions)
+  output$plotid <- renderDataTable((plotdata()), editable=list(target="column", disable=list(columns=1)), options=tableOptionsEdit)
+  output$measureid <- renderDataTable((measuredata()), editable=list(target="column", disable=list(columns=1)), options=tableOptionsEdit)
+  output$grid <- renderDataTable(griddata(), editable=list(target="column"), options=tableOptionsEdit)
 
 
   output$boxplot <- renderPlot(createBoxplot(df_id()))
@@ -259,6 +288,14 @@ server <- function(input, output, session) {
                                     function(file) {
                                       write.table(df_id(), file, row.names=FALSE,sep="\t",quote=FALSE)
                                     })
+  output$downloadsummary <- downloadHandler(filename=function() paste0("summary_",fname()),
+                                         function(file) {
+                                           write.table(createSummary(df_id()), file, row.names=FALSE,sep="\t",quote=FALSE)
+                                         })
+  output$downloadmeta <- downloadHandler(filename=function() paste0("meta_",fname()),
+                                     function(file) {
+                                       write.table(metafull(), file, row.names=FALSE,sep="\t",quote=FALSE)
+                                     })
   output$plotiddownload <- downloadHandler(filename=function() paste0("plotid_",fname()),
                                     function(file) {
                                       write.table(generateSamplePlotIdData(df_id()), file, row.names=FALSE, sep="\t", quote=FALSE)
@@ -274,6 +311,7 @@ server <- function(input, output, session) {
                                       }
                                       write.table(val$grid, file, row.names=FALSE, sep="\t", quote=FALSE)
                                     })
+
 }
 
 

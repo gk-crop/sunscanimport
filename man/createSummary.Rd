@@ -4,10 +4,12 @@
 \alias{createSummary}
 \title{Summarises data for each PlotID}
 \usage{
-createSummary(data)
+createSummary(data, deleted = FALSE)
 }
 \arguments{
 \item{data}{data.frame with LAI data}
+
+\item{deleted}{include measurements marked as deleted}
 }
 \value{
 data.frame summary information

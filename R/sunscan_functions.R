@@ -207,7 +207,7 @@ getHeader <- function(lines,path) {
     OriginalMD5Hash = digest::digest(file=path,algo="md5"),
     OriginalLastModified = as.character(file.info(path)[1,'mtime']),
     ConversionDate = as.character(Sys.time()),
-    ConversionTool = "Custom R-Script - version 1.0 - (c) Gunther Krauss"
+    ConversionTool = paste0("Package sunscanimport - version ",packageVersion("sunscanimport")," - (c) Gunther Krauss")
   )
   meta
 }
@@ -517,11 +517,14 @@ countMeasurements <- function(data) {
 #' Summarises data for each PlotID
 #'
 #' @param data data.frame with LAI data
-#'
+#' @param deleted include measurements marked as deleted
 #' @return data.frame summary information
 #' @export
 
-createSummary <- function(data) {
+createSummary <- function(data, deleted=FALSE) {
+  if(!deleted && "Delete" %in% names(data)) {
+    data <- dplyr::filter(data, Delete==0)
+  }
   data |> dplyr::group_by(PlotNr,Date,PlotID) |>
     dplyr::summarise(
       LAI_mean = mean(LAI, na.rm=TRUE),
@@ -570,13 +573,16 @@ createSeriesInfo <- function(data) {
 #' Creates a boxplot for LAI data
 #'
 #' @param data data.frame with LAI data
-#'
+#' @param deleted include measurements marked as deleted
 #' @return ggplot graph with boxplot
 #' @export
 
-createBoxplot <- function(data) {
+createBoxplot <- function(data, deleted=FALSE) {
   if("LAI" %in% names(data))
   {
+    if(!deleted && "Delete" %in% names(data)) {
+      data <- dplyr::filter(data, Delete==0)
+    }
     plotids <- sort(unique(data$PlotID))
     plots <- length(plotids)
     rows <- ceiling(plots/40)
@@ -595,10 +601,14 @@ createBoxplot <- function(data) {
 #' Plots LAI on a grid
 #' @param data imported sunscan data
 #' @param griddata grid data
+#' @param deleted include measurements marked as deleted
 #' @export
 
-createGridPlotLAI <- function(data, griddata) {
+createGridPlotLAI <- function(data, griddata, deleted=FALSE) {
   if (!is.null(griddata) && nrow(griddata)>0) {
+    if(!deleted && "Delete" %in% names(data)) {
+      data <- dplyr::filter(data, Delete==0)
+    }
     summariseddata <- data |>
       dplyr::filter(!is.na(PlotID) & !is.na(LAI)) |>
       dplyr::inner_join(griddata, by=c("PlotID"="PlotID")) |>
@@ -642,10 +652,11 @@ createGridPlot <- function(griddata) {
 createTimePlot <- function(data, stripes=11) {
   if(!is.null(data) && nrow(data)>0) {
     ggplot2::ggplot(data) +
-      ggplot2::geom_point(ggplot2::aes(x=DateTime,y=Measurement,colour=as.factor(as.integer(as.factor(PlotID))%%stripes))) +
+      ggplot2::geom_point(ggplot2::aes(x=DateTime,y=Measurement,shape=as.factor(Delete), colour=as.factor(as.integer(as.factor(PlotID))%%stripes))) +
       ggplot2::facet_wrap(Date~., scales = "free_x", ncol=1)  +
       ggplot2::scale_colour_brewer(palette = "Paired") +
-      ggplot2::guides(colour="none")
+      ggplot2::scale_shape_manual(values = c(16, 13)) +
+      ggplot2::guides(colour="none", shape="none")
   }
 }
 
@@ -659,10 +670,11 @@ createTimePlotLAI <- function(data, stripes=11) {
   if("LAI" %in% names(data))
   {
     ggplot2::ggplot(data) +
-      ggplot2::geom_point(ggplot2::aes(x=DateTime,y=LAI,colour=as.factor(as.integer(as.factor(PlotID))%%stripes)),na.rm=TRUE) +
+      ggplot2::geom_point(ggplot2::aes(x=DateTime,y=LAI,shape=as.factor(Delete), colour=as.factor(as.integer(as.factor(PlotID))%%stripes)),na.rm=TRUE) +
       ggplot2::facet_wrap(Date~., scales = "free_x", ncol=1) +
       ggplot2::scale_colour_brewer(palette = "Paired") +
-      ggplot2::guides(colour="none")
+      ggplot2::scale_shape_manual(values = c(16, 13)) +
+      ggplot2::guides(colour="none", shape="none")
   }
 }
 

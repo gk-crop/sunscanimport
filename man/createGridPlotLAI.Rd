@@ -4,12 +4,14 @@
 \alias{createGridPlotLAI}
 \title{Plots LAI on a grid}
 \usage{
-createGridPlotLAI(data, griddata)
+createGridPlotLAI(data, griddata, deleted = FALSE)
 }
 \arguments{
 \item{data}{imported sunscan data}
 
 \item{griddata}{grid data}
+
+\item{deleted}{include measurements marked as deleted}
 }
 \description{
 Plots LAI on a grid

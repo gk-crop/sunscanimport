@@ -4,10 +4,12 @@
 \alias{createBoxplot}
 \title{Creates a boxplot for LAI data}
 \usage{
-createBoxplot(data)
+createBoxplot(data, deleted = FALSE)
 }
 \arguments{
 \item{data}{data.frame with LAI data}
+
+\item{deleted}{include measurements marked as deleted}
 }
 \value{
 ggplot graph with boxplot
