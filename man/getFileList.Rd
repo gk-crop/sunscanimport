@@ -7,14 +7,14 @@
 getFileList(
   directory,
   prefix = "",
-  extension = ".txt",
+  extension = ".TXT",
   excludedir = "converted"
 )
 }
 \arguments{
 \item{directory}{to search for data files}
 
-\item{prefix}{of files to take into accoung}
+\item{prefix}{of files to take into account}
 
 \item{extension}{of files to take into account}
 

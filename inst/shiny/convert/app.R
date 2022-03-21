@@ -289,7 +289,7 @@ server <- function(input, output, session) {
 
 
   output$download <- downloadHandler(
-    filename=function() paste0("converted_",fname()),
+    filename=function() paste0("data_",fname()),
     content = function(file) {
       write.table(df_id(), file, row.names=FALSE,sep="\t",quote=FALSE)
     })
@@ -346,7 +346,7 @@ server <- function(input, output, session) {
       if(mt[mt$Property=='MeasuredVariable','Value']=='LAI')
       {
         fn <- c(fn,
-                'data' = paste0(tmpdir,'/converted/converted_',of),
+                'data' = paste0(tmpdir,'/converted/data_',of),
                 'summary' = paste0(tmpdir,'/converted/summary_',of)
         )
         write.table(df_id(), fn['data'], row.names=FALSE,sep="\t",quote=FALSE)

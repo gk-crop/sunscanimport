@@ -1,3 +1,38 @@
+#' Functions to import, convert and visualise data from LAI Sunscan device
+#'
+#' Functions to:
+#' * Convert a file or a directory
+#' * Create reports for converted data
+#' * run a shiny app for interactive conversion
+#' @examples
+#' \dontrun{
+#'   library(sunscanimport)
+#'   runSunscanApp()
+#' }
+#' 
+#' \dontrun{
+#'   library(sunscanimport)
+#'   file <- "paulinenaue.TXT"
+#'   inputfolder <-  "data/210908/original/"
+#'   outputfolder <- "data/210908/"
+#'   convfile <- convertSunscanFile(file,inputfolder, outputfolder)
+#'   generateReport(convfile, inputfolder, outputfolder)
+#' }
+#' 
+#' \dontrun{
+#'   library(sunscanimport)
+#'   convertSunScanDirectory("data/")
+#' }
+#' 
+#' @author {Gunther Krauss}
+#' 
+#' @docType package
+#' @name sunscanimport
+#' @md
+NULL
+
+
+
 #' Checks if given file is a valid SunScan file
 #'
 #' Checks if file starts with 'Created by SunData'
@@ -203,7 +238,7 @@ getHeader <- function(lines,path) {
   meta <- c(
     getSmallHeader(lines),
     OriginalFileName = basename(path),
-    OriginalPath = path.expand(movedFileName(basename(path),dirname(path),"original")),
+    OriginalPath = normalizePath(path.expand(movedFileName(basename(path),dirname(path),"original")),winslash="/"),
     OriginalMD5Hash = digest::digest(file=path,algo="md5"),
     OriginalLastModified = as.character(file.info(path)[1,'mtime']),
     ConversionDate = as.character(Sys.time()),
@@ -825,14 +860,14 @@ splitLines <- function(lines)
 #' Fetches recursively all possible data files from a directory
 #'
 #' @param directory to search for data files
-#' @param prefix of files to take into accoung
+#' @param prefix of files to take into account
 #' @param extension of files to take into account
 #' @param excludedir subdirectory name to exclude
 #'
 #' @return vector of potential data files
 #' @export
 
-getFileList <- function(directory, prefix="", extension=".txt", excludedir="converted") {
+getFileList <- function(directory, prefix="", extension=".TXT", excludedir="converted") {
   allfiles <- list.files(directory,
                          recursive=TRUE,
                          full.names=TRUE,
@@ -1108,8 +1143,11 @@ generateInitialGridData <- function(data, rows=1, rowwise = FALSE) {
 #' @param outputfolder output folder
 #' @param reportscript script to generate the report
 #' @export
-generateReport <- function(file, inputfolder, outputfolder, reportscript) {
-  params <- list("file"=file, "inputfolder"=inputfolder, "outputfolder"=outputfolder)
+generateReport <- function(file, inputfolder, outputfolder, reportscript=system.file("reports","default_report.R",package="sunscanimport")) {
+  params <- list(
+    "file"=file, 
+    "inputfolder"=paste0(normalizePath(inputfolder,winslash='/'),'/'), 
+    "outputfolder"=paste0(normalizePath(outputfolder,winslash='/'),'/'))
   outf <- reportFileName(file, outputfolder)
   try({
     rmarkdown::render(reportscript,params = params,

@@ -1,7 +1,7 @@
 Package: sunscanimport
 Type: Package
 Title: Imports data from sunscan device 
-Version: 0.3.0
+Version: 0.3.1
 Date: 2022-03-21
 Author: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Maintainer: Gunther Krauss <guntherkrauss@uni-bonn.de>
@@ -16,5 +16,8 @@ Imports:
 LazyLoad: yes
 VignetteBuilder: knitr
 Suggests:
-    knitr, rmarkdown
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 RoxygenNote: 7.1.2
+Config/testthat/edition: 3

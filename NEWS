@@ -1,3 +1,8 @@
+Version 0.3.1
+* Added package documentation
+* Use builtin report script by default
+* Added unit tests
+
 Version 0.3.0
 * Download all files as Zip
 * Better handling of PAR measurements

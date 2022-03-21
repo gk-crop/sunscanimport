@@ -4,7 +4,12 @@
 \alias{generateReport}
 \title{Generates report concerning converted data}
 \usage{
-generateReport(file, inputfolder, outputfolder, reportscript)
+generateReport(
+  file,
+  inputfolder,
+  outputfolder,
+  reportscript = system.file("reports", "default_report.R", package = "sunscanimport")
+)
 }
 \arguments{
 \item{file}{filename}
