@@ -44,6 +44,9 @@ ui <- fluidPage(
         )
       ),
 
+      downloadButton("zipdownload", "Download all files as Zip"),
+      br(), br(),
+      h4("Download Data"),
       downloadButton("download", "Download converted data"),br(),
       downloadButton("downloadsummary", "Summary"),
       downloadButton("downloadmeta", "Meta-Data"),
@@ -52,6 +55,7 @@ ui <- fluidPage(
       downloadButton("plotiddownload", "PlotNr↔ID template"),
       downloadButton("measureiddownload", "MeasureNr↔ID template"),
       downloadButton("griddownload", "Grid↔ID template")
+      
     ),
 
     mainPanel(
@@ -284,34 +288,89 @@ server <- function(input, output, session) {
   output$gridplot <- renderPlot(createGridPlot(griddata()))
 
 
-  output$download <- downloadHandler(filename=function() paste0("converted_",fname()),
-                                    function(file) {
-                                      write.table(df_id(), file, row.names=FALSE,sep="\t",quote=FALSE)
-                                    })
-  output$downloadsummary <- downloadHandler(filename=function() paste0("summary_",fname()),
-                                         function(file) {
-                                           write.table(createSummary(df_id()), file, row.names=FALSE,sep="\t",quote=FALSE)
-                                         })
-  output$downloadmeta <- downloadHandler(filename=function() paste0("meta_",fname()),
-                                     function(file) {
-                                       write.table(metafull(), file, row.names=FALSE,sep="\t",quote=FALSE)
-                                     })
-  output$plotiddownload <- downloadHandler(filename=function() paste0("plotid_",fname()),
-                                    function(file) {
-                                      write.table(generateSamplePlotIdData(df_id()), file, row.names=FALSE, sep="\t", quote=FALSE)
-                                    })
-  output$measureiddownload <- downloadHandler(filename=function() paste0("measureid_",fname()),
-                                    function(file) {
-                                      write.table(generateSampleMeasurementIdData(df_id()), file,row.names=FALSE, sep="\t", quote=FALSE)
-                                    })
-  output$griddownload <- downloadHandler(filename=function() paste0("grid_",fname()),
-                                    function(file) {
-                                      if(is.null(val$grid)) {
-                                        val$grid<-generateInitialGridData(df_id(), input$gridrows, input$gridrowwise)
-                                      }
-                                      write.table(val$grid, file, row.names=FALSE, sep="\t", quote=FALSE)
-                                    })
+  output$download <- downloadHandler(
+    filename=function() paste0("converted_",fname()),
+    content = function(file) {
+      write.table(df_id(), file, row.names=FALSE,sep="\t",quote=FALSE)
+    })
+  output$downloadsummary <- downloadHandler(
+    filename=function() paste0("summary_",fname()),
+    content = function(file) {
+      write.table(createSummary(df_id()), file, row.names=FALSE,sep="\t",quote=FALSE)
+    })
+  output$downloadmeta <- downloadHandler(
+    filename=function() paste0("meta_",fname()),
+    content = function(file) {
+      write.table(metafull(), file, row.names=FALSE,sep="\t",quote=FALSE)
+    })
+  output$plotiddownload <- downloadHandler(
+    filename=function() paste0("plotid_",fname()),
+    content = function(file) {
+      write.table(generateSamplePlotIdData(df_id()), file, row.names=FALSE, sep="\t", quote=FALSE)
+    })
+  output$measureiddownload <- downloadHandler(
+    filename=function() paste0("measureid_",fname()),
+    content = function(file) {
+      write.table(generateSampleMeasurementIdData(df_id()), file,row.names=FALSE, sep="\t", quote=FALSE)
+    })
+  output$griddownload <- downloadHandler(
+    filename=function() paste0("grid_",fname()),
+    content = function(file) {
+      if(is.null(val$grid)) {
+        val$grid<-generateInitialGridData(df_id(), input$gridrows, input$gridrowwise)
+      }
+      write.table(val$grid, file, row.names=FALSE, sep="\t", quote=FALSE)
+    })
 
+  
+  output$zipdownload <- downloadHandler(
+    filename=function(){paste0(stripFileExtension(fname()),'.zip')},
+    content = function(file) {
+      of <- fname()
+      mt <-metafull()
+      tmpdir <- paste0(tempdir(),'/',stripFileExtension(of))
+      dir.create(tmpdir,showWarnings=FALSE)
+      dir.create(paste0(tmpdir,'/original'), showWarnings=FALSE)
+      dir.create(paste0(tmpdir,'/proceeding'), showWarnings=FALSE)
+      dir.create(paste0(tmpdir,'/converted'), showWarnings=FALSE)
+      
+      fn <- c(
+        'original' = paste0(tmpdir,'/original/',input$sunscanfile$name),
+        'meta' = paste0(tmpdir,'/converted/meta_',of),
+        'plotid' = paste0(tmpdir,'/proceeding/plotid_',of),
+        'measureid' = paste0(tmpdir,'/proceeding/measureid_',of),
+        'gridid' = paste0(tmpdir,'/proceeding/grid_',of)
+      )
+      file.copy(input$sunscanfile$datapath,fn['original'])
+      
+      if(mt[mt$Property=='MeasuredVariable','Value']=='LAI')
+      {
+        fn <- c(fn,
+                'data' = paste0(tmpdir,'/converted/converted_',of),
+                'summary' = paste0(tmpdir,'/converted/summary_',of)
+        )
+        write.table(df_id(), fn['data'], row.names=FALSE,sep="\t",quote=FALSE)
+        write.table(createSummary(df_id()), fn['summary'], row.names=FALSE,sep="\t",quote=FALSE)
+      }
+      else {
+        fn <- c(
+          fn,
+          'data' = paste0(tmpdir,'/converted/pardata_',of)
+        )
+        write.table(df_id(), fn['data'], row.names=FALSE,sep="\t",quote=FALSE)
+        
+      }
+      write.table(metafull(), fn['meta'], row.names=FALSE,sep="\t",quote=FALSE)
+      write.table(generateSamplePlotIdData(df_id()), fn['plotid'], row.names=FALSE, sep="\t", quote=FALSE)
+      write.table(generateSampleMeasurementIdData(df_id()), fn['measureid'],row.names=FALSE, sep="\t", quote=FALSE)
+      if(is.null(val$grid)) {
+        val$grid<-generateInitialGridData(df_id(), input$gridrows, input$gridrowwise)
+      }
+      write.table(val$grid, fn['gridid'], row.names=FALSE, sep="\t", quote=FALSE)
+      zip::zip(zipfile=file, files=c('original','converted','proceeding'), recurse=TRUE, root = tmpdir ,mode="cherry-pick")
+    },
+    contentType = "application/zip")
+  
 }
 
 

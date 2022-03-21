@@ -1,8 +1,8 @@
 Package: sunscanimport
 Type: Package
 Title: Imports data from sunscan device 
-Version: 0.2.0
-Date: 2022-03-16
+Version: 0.3.0
+Date: 2022-03-21
 Author: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Maintainer: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Description: Provides functions to import, convert and visualize LAI 
@@ -12,7 +12,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.1.0)
 Imports:
-    stats, utils, readr, dplyr, ggplot2, digest, shiny, DT
+    stats, utils, readr, dplyr, ggplot2, digest, shiny, DT, zip
 LazyLoad: yes
 VignetteBuilder: knitr
 Suggests:

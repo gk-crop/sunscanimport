@@ -1,3 +1,7 @@
+Version 0.3.0
+* Download all files as Zip
+* Better handling of PAR measurements
+
 Version 0.2.0
 * Mark/exclude deleted measurements in plots
 * Changed number of rows in table

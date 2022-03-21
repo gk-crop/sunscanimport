@@ -522,29 +522,32 @@ countMeasurements <- function(data) {
 #' @export
 
 createSummary <- function(data, deleted=FALSE) {
-  if(!deleted && "Delete" %in% names(data)) {
-    data <- dplyr::filter(data, Delete==0)
+  if(!is.null(data) && nrow(data)>0 && 'LAI' %in% names(data))
+  {
+    if(!deleted && "Delete" %in% names(data)) {
+      data <- dplyr::filter(data, Delete==0)
+    }
+    data |> dplyr::group_by(PlotNr,Date,PlotID) |>
+      dplyr::summarise(
+        LAI_mean = mean(LAI, na.rm=TRUE),
+        LAI_median = median(LAI, na.rm=TRUE),
+        LAI_min = min(LAI, na.rm=TRUE),
+        LAI_max = max(LAI, na.rm=TRUE),
+        LAI_sd = sd(LAI, na.rm=TRUE),
+        LAI_realmeasurements = sum(!is.na(LAI)),
+        Measurements = dplyr::n(),
+        Transmitted = mean(Transmitted, na.rm=TRUE),
+        Spread = mean(Spread, na.rm=TRUE),
+        Incindent = mean(Incident, na.rm=TRUE),
+        ZenithAngle = mean(ZenithAngle, na.rm=TRUE),
+        TransmittedFrac = mean(TransmittedFrac, na.rm=TRUE),
+        Start = min(DateTime),
+        End = max(DateTime),
+        Duration = max(DateTime) - min(DateTime),
+        Remarks = dplyr::first(Remarks),
+        .groups = "drop"
+      )
   }
-  data |> dplyr::group_by(PlotNr,Date,PlotID) |>
-    dplyr::summarise(
-      LAI_mean = mean(LAI, na.rm=TRUE),
-      LAI_median = median(LAI, na.rm=TRUE),
-      LAI_min = min(LAI, na.rm=TRUE),
-      LAI_max = max(LAI, na.rm=TRUE),
-      LAI_sd = sd(LAI, na.rm=TRUE),
-      LAI_realmeasurements = sum(!is.na(LAI)),
-      Measurements = dplyr::n(),
-      Transmitted = mean(Transmitted, na.rm=TRUE),
-      Spread = mean(Spread, na.rm=TRUE),
-      Incindent = mean(Incident, na.rm=TRUE),
-      ZenithAngle = mean(ZenithAngle, na.rm=TRUE),
-      TransmittedFrac = mean(TransmittedFrac, na.rm=TRUE),
-      Start = min(DateTime),
-      End = max(DateTime),
-      Duration = max(DateTime) - min(DateTime),
-      Remarks = dplyr::first(Remarks),
-      .groups = "drop"
-    )
 }
 
 #' Summarise information about measurement series
@@ -605,7 +608,7 @@ createBoxplot <- function(data, deleted=FALSE) {
 #' @export
 
 createGridPlotLAI <- function(data, griddata, deleted=FALSE) {
-  if (!is.null(griddata) && nrow(griddata)>0) {
+  if (!is.null(griddata) && nrow(griddata)>0 && !is.null(data) && nrow(data)>0 && 'LAI' %in% names(data)) {
     if(!deleted && "Delete" %in% names(data)) {
       data <- dplyr::filter(data, Delete==0)
     }
