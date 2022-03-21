@@ -47,14 +47,14 @@ ui <- fluidPage(
       downloadButton("zipdownload", "Download all files as Zip"),
       br(), br(),
       h4("Download Data"),
-      downloadButton("download", "Download converted data"),br(),
+      downloadButton("download", "Converted Data"),br(),
       downloadButton("downloadsummary", "Summary"),
       downloadButton("downloadmeta", "Meta-Data"),
       br(), br(),
-      h4("Download template files"),
-      downloadButton("plotiddownload", "PlotNr↔ID template"),
-      downloadButton("measureiddownload", "MeasureNr↔ID template"),
-      downloadButton("griddownload", "Grid↔ID template")
+      h4("Download proceeding files"),
+      downloadButton("plotiddownload", "PlotNr↔PlotID"),
+      downloadButton("measureiddownload", "MeasureNr↔PlotID"),
+      downloadButton("griddownload", "Grid↔PlotID")
       
     ),
 
