@@ -1,31 +1,31 @@
 #' Functions to import, convert and visualise data from LAI Sunscan device
 #'
-#' Functions to:
-#' * Convert a file or a directory
-#' * Create reports for converted data
+#' The package provides functions to:
+#' * convert a file or a directory
+#' * summarize or transform converted data
+#' * create reports for converted data
 #' * run a shiny app for interactive conversion
 #' @examples
 #' \dontrun{
-#'   library(sunscanimport)
-#'   runSunscanApp()
-#' }
-#' 
+#'   runSunscanApp()}
+#'
 #' \dontrun{
-#'   library(sunscanimport)
 #'   file <- "paulinenaue.TXT"
 #'   inputfolder <-  "data/210908/original/"
 #'   outputfolder <- "data/210908/"
 #'   convfile <- convertSunscanFile(file,inputfolder, outputfolder)
-#'   generateReport(convfile, inputfolder, outputfolder)
-#' }
-#' 
+#'   generateReport(convfile, inputfolder, outputfolder)}
+#'
 #' \dontrun{
-#'   library(sunscanimport)
-#'   convertSunScanDirectory("data/")
-#' }
-#' 
+#'   convertSunScanDirectory("data/")}
+#'
+#' \dontrun{
+#'   data <- readr::read_delim("data/210908/converted/data_paulinenaue.txt", delim="\t")
+#'   data_summary <- createSummary(data)
+#'   data_wide <- transformToWideFormat(data)}
+#'
 #' @author {Gunther Krauss}
-#' 
+#'
 #' @docType package
 #' @name sunscanimport
 #' @md
@@ -553,7 +553,7 @@ countMeasurements <- function(data) {
 #'
 #' @param data data.frame with LAI data
 #' @param deleted include measurements marked as deleted
-#' @return data.frame summary information
+#' @return data.frame with summary information
 #' @export
 
 createSummary <- function(data, deleted=FALSE) {
@@ -582,6 +582,35 @@ createSummary <- function(data, deleted=FALSE) {
         Remarks = dplyr::first(Remarks),
         .groups = "drop"
       )
+  }
+}
+
+#' Transform LAI data to wide format (1 row per PlotID)
+#'
+#' Each PlotID has only one row where each individual LAI
+#' measurements is in an own column. Number of columns is determined by
+#' the maxiumum number of measurements per PlotID. Measurements are populated
+#' from left to right and filled up by NAs.
+#'
+#' @param data data.frame with LAI data
+#' @param deleted include measurements marked as deleted
+#' @return data.frame in wide format
+#' @export
+transformToWideFormat <- function(data, deleted=FALSE) {
+  if(!is.null(data) && nrow(data)>0 && 'LAI' %in% names(data))
+  {
+    if(!deleted && "Delete" %in% names(data)) {
+      data <- dplyr::filter(data, Delete==0)
+    }
+    data |>
+      dplyr::select(PlotID, Date, LAI) |>
+      dplyr::arrange(Date, PlotID, is.na(LAI)) |>
+      dplyr::group_by(PlotID, Date) |>
+      dplyr::mutate(meanLAI = mean(LAI, na.rm=TRUE),
+             Measurement=dplyr::row_number()) |>
+      tidyr::pivot_wider(names_from=Measurement,
+                  values_from=LAI,
+                  names_prefix="LAI_" )
   }
 }
 
@@ -1138,15 +1167,25 @@ generateInitialGridData <- function(data, rows=1, rowwise = FALSE) {
 
 #' Generates report concerning converted data
 #'
+#' If one does not provide a report script, then the default report script is
+#' used.
+#'
+#' A report script is an R script that may contain RMarkdown. Inside the script
+#' one can use the variable `param` with its elements `param$file`, `param$inputfolder` and `param$outputfolder`.
+#' The report will be placed in the outputfolder in the subdirectory `report`.
+#'
+#' Notice that the package `rmarkdown` and `knitr` have to be installed to generate a report.
+#'
 #' @param file filename
 #' @param inputfolder input folder
 #' @param outputfolder output folder
 #' @param reportscript script to generate the report
+#' @md
 #' @export
 generateReport <- function(file, inputfolder, outputfolder, reportscript=system.file("reports","default_report.R",package="sunscanimport")) {
   params <- list(
-    "file"=file, 
-    "inputfolder"=paste0(normalizePath(inputfolder,winslash='/'),'/'), 
+    "file"=file,
+    "inputfolder"=paste0(normalizePath(inputfolder,winslash='/'),'/'),
     "outputfolder"=paste0(normalizePath(outputfolder,winslash='/'),'/'))
   outf <- reportFileName(file, outputfolder)
   try({

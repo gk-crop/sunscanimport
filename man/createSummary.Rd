@@ -12,7 +12,7 @@ createSummary(data, deleted = FALSE)
 \item{deleted}{include measurements marked as deleted}
 }
 \value{
-data.frame summary information
+data.frame with summary information
 }
 \description{
 Summarises data for each PlotID

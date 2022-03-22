@@ -21,5 +21,13 @@ generateReport(
 \item{reportscript}{script to generate the report}
 }
 \description{
-Generates report concerning converted data
+If one does not provide a report script, then the default report script is
+used.
+}
+\details{
+A report script is an R script that may contain RMarkdown. Inside the script
+one can use the variable \code{param} with its elements \code{param$file}, \code{param$inputfolder} and \code{param$outputfolder}.
+The report will be placed in the outputfolder in the subdirectory \code{report}.
+
+Notice that the package \code{rmarkdown} and \code{knitr} have to be installed to generate a report.
 }

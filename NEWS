@@ -1,3 +1,6 @@
+Version 0.3.2
+* Added function to transform data to wide format
+
 Version 0.3.1
 * Added package documentation
 * Use builtin report script by default

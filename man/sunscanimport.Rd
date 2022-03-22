@@ -14,23 +14,22 @@ Functions to:
 }
 \examples{
 \dontrun{
-  library(sunscanimport)
-  runSunscanApp()
-}
+  runSunscanApp()}
 
 \dontrun{
-  library(sunscanimport)
   file <- "paulinenaue.TXT"
   inputfolder <-  "data/210908/original/"
   outputfolder <- "data/210908/"
   convfile <- convertSunscanFile(file,inputfolder, outputfolder)
-  generateReport(convfile, inputfolder, outputfolder)
-}
+  generateReport(convfile, inputfolder, outputfolder)}
 
 \dontrun{
-  library(sunscanimport)
-  convertSunScanDirectory("data/")
-}
+  convertSunScanDirectory("data/")}
+
+\dontrun{
+  data <- readr::read_delim("data/210908/converted/data_paulinenaue.txt", delim="\t")
+  data_summary <- createSummary(data)
+  data_wide <- transformToWideFormat(data)}
 
 }
 \author{
