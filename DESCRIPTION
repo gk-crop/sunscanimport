@@ -1,8 +1,8 @@
 Package: sunscanimport
 Type: Package
 Title: Imports data from sunscan device 
-Version: 0.3.2
-Date: 2022-03-22
+Version: 0.3.3
+Date: 2022-05-12
 Author: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Maintainer: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Description: Provides functions to import, convert and visualize LAI 

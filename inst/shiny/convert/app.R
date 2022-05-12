@@ -55,7 +55,7 @@ ui <- fluidPage(
       downloadButton("plotiddownload", "PlotNr↔PlotID"),
       downloadButton("measureiddownload", "MeasureNr↔PlotID"),
       downloadButton("griddownload", "Grid↔PlotID")
-      
+
     ),
 
     mainPanel(
@@ -78,7 +78,7 @@ ui <- fluidPage(
         tabPanel("TimeGraphs",
                  numericInput("stripes","Number of colours: ",7,1,12),
                  h4("Measurement Nr / PlotNr vs. Measurement Time"),
-                 plotOutput("timeplot"),
+                 plotOutput("timeplot",brush=brushOpts(id="timeplot_brush",direction="x"),dblclick=clickOpts(id="timeplot_dbl")),
                  h4("LAI vs.  Measurement Time"),
                  plotOutput("timeplotLAI")),
         tabPanel("PlotNr↔ID",
@@ -219,6 +219,11 @@ server <- function(input, output, session) {
 
   df_id <- reactive(mergeID(df(),plotdata(), measuredata()))
 
+  df_id_brushed <- reactive({
+    if(is.null(input$timeplot_brush)){df_id()}
+       else{brushedPoints(df_id(),input$timeplot_brush,xvar="DateTime")}
+       })
+
   observeEvent(input$plotidfile, {
     val$plotdatachanged <-FALSE
     val$measuredatachanged <- FALSE
@@ -270,6 +275,9 @@ server <- function(input, output, session) {
     val$gridchanged <-TRUE
   })
 
+  observeEvent(input$timeplot_dbl, {
+    session$resetBrush("timeplot_brush")
+  })
 
   output$meta <- renderTable(meta())
   output$measurementcount <- renderTable(countMeasurements(df_id()))
@@ -283,8 +291,8 @@ server <- function(input, output, session) {
 
   output$boxplot <- renderPlot(createBoxplot(df_id()))
   output$raster <- renderPlot(createGridPlotLAI(df_id(), griddata()))
-  output$timeplot <- renderPlot(createTimePlot(df_id(), input$stripes))
-  output$timeplotLAI <- renderPlot(createTimePlotLAI(df_id(), input$stripes))
+  output$timeplot <- renderPlot(createTimePlot(df_id_brushed(), input$stripes))
+  output$timeplotLAI <- renderPlot(createTimePlotLAI(df_id_brushed(), input$stripes))
   output$gridplot <- renderPlot(createGridPlot(griddata()))
 
 
@@ -322,7 +330,7 @@ server <- function(input, output, session) {
       write.table(val$grid, file, row.names=FALSE, sep="\t", quote=FALSE)
     })
 
-  
+
   output$zipdownload <- downloadHandler(
     filename=function(){paste0(stripFileExtension(fname()),'.zip')},
     content = function(file) {
@@ -333,7 +341,7 @@ server <- function(input, output, session) {
       dir.create(paste0(tmpdir,'/original'), showWarnings=FALSE)
       dir.create(paste0(tmpdir,'/proceeding'), showWarnings=FALSE)
       dir.create(paste0(tmpdir,'/converted'), showWarnings=FALSE)
-      
+
       fn <- c(
         'original' = paste0(tmpdir,'/original/',input$sunscanfile$name),
         'meta' = paste0(tmpdir,'/converted/meta_',of),
@@ -342,7 +350,7 @@ server <- function(input, output, session) {
         'gridid' = paste0(tmpdir,'/proceeding/grid_',of)
       )
       file.copy(input$sunscanfile$datapath,fn['original'])
-      
+
       if(mt[mt$Property=='MeasuredVariable','Value']=='LAI')
       {
         fn <- c(fn,
@@ -358,7 +366,7 @@ server <- function(input, output, session) {
           'data' = paste0(tmpdir,'/converted/pardata_',of)
         )
         write.table(df_id(), fn['data'], row.names=FALSE,sep="\t",quote=FALSE)
-        
+
       }
       write.table(metafull(), fn['meta'], row.names=FALSE,sep="\t",quote=FALSE)
       write.table(generateSamplePlotIdData(df_id()), fn['plotid'], row.names=FALSE, sep="\t", quote=FALSE)
@@ -370,7 +378,7 @@ server <- function(input, output, session) {
       zip::zip(zipfile=file, files=c('original','converted','proceeding'), recurse=TRUE, root = tmpdir ,mode="cherry-pick")
     },
     contentType = "application/zip")
-  
+
 }
 
 
