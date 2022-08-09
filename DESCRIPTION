@@ -1,8 +1,8 @@
 Package: sunscanimport
 Type: Package
 Title: Imports data from sunscan device 
-Version: 0.3.3
-Date: 2022-05-12
+Version: 0.3.4
+Date: 2022-08-09
 Author: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Maintainer: Gunther Krauss <guntherkrauss@uni-bonn.de>
 Description: Provides functions to import, convert and visualize LAI 
@@ -27,5 +27,5 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Config/testthat/edition: 3

@@ -124,6 +124,11 @@ server <- function(input, output, session) {
   val$grid <- NULL
   val$plotdatachanged <- FALSE
   val$plotdata <- NULL
+
+  val$datachanged <- FALSE
+  val$data <- NULL
+
+
   val$measuredatachanged <- FALSE
   val$measuredata <- NULL
 
@@ -183,7 +188,14 @@ server <- function(input, output, session) {
   })
 
 
-  df <- reactive(getDataFromFile(datalines(), req(input$dataset)))
+  df <- reactive({
+    if(!val$datachanged)
+    {
+      val$data <- getDataFromFile(datalines(), req(input$dataset))
+    }
+    val$data
+  })
+
 
   plotdata <- reactive({
     if(!val$plotdatachanged) {
@@ -219,10 +231,23 @@ server <- function(input, output, session) {
 
   df_id <- reactive(mergeID(df(),plotdata(), measuredata()))
 
+
+
+
   df_id_brushed <- reactive({
     if(is.null(input$timeplot_brush)){df_id()}
        else{brushedPoints(df_id(),input$timeplot_brush,xvar="DateTime")}
        })
+
+  # events, when user loads / selects data
+  observeEvent(input$sunscanfile, {
+    val$datachanged <-FALSE
+  })
+
+  observeEvent(input$dataset, {
+    val$datachanged <-FALSE
+  })
+
 
   observeEvent(input$plotidfile, {
     val$plotdatachanged <-FALSE
@@ -241,6 +266,15 @@ server <- function(input, output, session) {
   observeEvent(input$gridfileinternal, {
     val$gridchanged <-FALSE
     val$gridfileinternal <- TRUE
+  })
+
+
+  # events when user edits data
+  observeEvent(input$converted_cell_edit, {
+    val$data <- editData(val$data, input$converted_cell_edit, 'converted')
+    val$datachanged <-TRUE
+    val$measuredatachanged <- TRUE
+    val$measuredata <- NULL
   })
 
   observeEvent(input$plotid_cell_edit, {
@@ -281,11 +315,11 @@ server <- function(input, output, session) {
 
   output$meta <- renderTable(meta())
   output$measurementcount <- renderTable(countMeasurements(df_id()))
-  output$converted <- renderDataTable(df_id(), options=tableOptions)
+  output$converted <- renderDataTable(df(),  editable=list(target="column", disable=list(columns=c(1,2,4:(ncol(df()))))), options=tableOptions)
   output$summary <- renderDataTable(createSummary(df_id()), options=tableOptions)
   output$measurement <- renderDataTable(createSeriesInfo(df_id()), options=tableOptions)
   output$plotid <- renderDataTable((plotdata()), editable=list(target="column", disable=list(columns=1)), options=tableOptionsEdit)
-  output$measureid <- renderDataTable((measuredata()), editable=list(target="column", disable=list(columns=1)), options=tableOptionsEdit)
+  output$measureid <- renderDataTable((measuredata()), editable=list(target="column", disable=list(columns=c(1,2))), options=tableOptionsEdit)
   output$grid <- renderDataTable(griddata(), editable=list(target="column"), options=tableOptionsEdit)
 
 

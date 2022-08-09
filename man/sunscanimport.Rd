@@ -5,10 +5,11 @@
 \alias{sunscanimport}
 \title{Functions to import, convert and visualise data from LAI Sunscan device}
 \description{
-Functions to:
+The package provides functions to:
 \itemize{
-\item Convert a file or a directory
-\item Create reports for converted data
+\item convert a file or a directory
+\item summarize or transform converted data
+\item create reports for converted data
 \item run a shiny app for interactive conversion
 }
 }
