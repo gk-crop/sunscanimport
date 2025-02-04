@@ -2,6 +2,7 @@
 % Please edit documentation in R/sunscan_functions.R
 \docType{package}
 \name{sunscanimport}
+\alias{sunscanimport-package}
 \alias{sunscanimport}
 \title{Functions to import, convert and visualise data from LAI Sunscan device}
 \description{

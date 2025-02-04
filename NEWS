@@ -2,6 +2,7 @@ Version 0.3.4
 * Make column Measurement editable in Data-Tab (if one has to create unique
 PlotNr+Measurement combinations)
 
+
 Version 0.3.3
 * It's possible to zoom in into time graphs
 

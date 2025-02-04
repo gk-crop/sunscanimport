@@ -29,7 +29,7 @@
 #' @docType package
 #' @name sunscanimport
 #' @md
-NULL
+"_PACKAGE"
 
 
 
@@ -232,6 +232,7 @@ getSmallHeader <- function(lines) {
 #' @param path path of the file
 #'
 #' @return named vector with meta data
+#' @importFrom utils packageVersion
 #' @export
 
 getHeader <- function(lines,path) {
@@ -399,6 +400,7 @@ getParData <- function(lines,date) {
 #'
 #' @param file filename
 #' @return data frame with the ids
+#' @importFrom utils read.delim
 #' @export
 
 readIdData <- function(file) {
@@ -531,6 +533,8 @@ reorderDataColumns <- function(data) {
 #' Counts measurements
 #' @param data imported sunscan data
 #' @return dataframe with number of measurements
+#' @importFrom stats median
+#' @importFrom rlang .data
 #' @export
 countMeasurements <- function(data) {
   var <- ifelse("LAI" %in% names(data),"LAI", "Par")
@@ -554,6 +558,7 @@ countMeasurements <- function(data) {
 #' @param data data.frame with LAI data
 #' @param deleted include measurements marked as deleted
 #' @return data.frame with summary information
+#' @importFrom stats sd
 #' @export
 
 createSummary <- function(data, deleted=FALSE) {
@@ -815,6 +820,7 @@ reportFileName <- function(file, outputfolder) {
 #' @param data data frame
 #' @param file filename of original file
 #' @param outputfolder output folder
+#' @importFrom utils write.table
 #' @export
 
 saveHeader <- function(data, file, outputfolder) {
