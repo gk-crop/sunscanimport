@@ -1,3 +1,6 @@
+Version 0.3.5
+* Changed method to detect whether file is a SunData file
+
 Version 0.3.4
 * Make column Measurement editable in Data-Tab (if one has to create unique
 PlotNr+Measurement combinations)

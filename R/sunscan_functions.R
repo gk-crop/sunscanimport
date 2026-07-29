@@ -45,7 +45,8 @@
 isSunscanFile <- function(path) {
   lines <- readLines(path,n=15)
   checkString <- "Created by SunData"
-  length(lines)>=14 && startsWith(lines[[1]],checkString)
+  checkString2 <- "SunData"
+  length(lines)>=14 && (startsWith(lines[[1]],checkString) | startsWith(lines[[1]],checkString2))
 }
 
 
